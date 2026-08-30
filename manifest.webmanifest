@@ -1,0 +1,15 @@
+{
+  "name": "人生目标具象画",
+  "short_name": "具象画",
+  "description": "离线可用的个人愿景与正念工具：未来形象、愿景场景、每日正念、愿望与奖励。数据只在本机。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6efe3",
+  "theme_color": "#f6efe3",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

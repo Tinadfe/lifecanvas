@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>人生目标具象画</title>
+<meta name="description" content="离线可用的个人愿景与正念工具：未来形象、愿景场景、每日正念、愿望与奖励。数据只在本机。">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="theme-color" content="#f6efe3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+  <header id="topbar">
+    <h1>人生目标具象画 <span class="badge">本地·离线</span></h1>
+    <button class="topbtn" data-nav="settings" title="设置与备份">⚙</button>
+  </header>
+
+  <main>
+    <!-- ===== 今日 ===== -->
+    <section id="view-home" class="view">
+      <div class="hero-card">
+        <div id="homeMainImg" class="hero-img">
+          <span class="ph" id="homeMainPh">未来形象将显示在这里<br>（去「形象」页创建）</span>
+        </div>
+        <p class="hero-quote">「人生是一场体验，别忘了在体验中快乐地完成。」</p>
+        <div class="hero-foot" id="homeMainInfo"></div>
+      </div>
+
+      <div class="card">
+        <div class="head">
+          <h3>今日正念</h3>
+          <button id="mindShuffle" class="btn-mini">换一句</button>
+        </div>
+        <p class="mind-text" id="homeMindText"></p>
+        <span class="chip" id="homeMindMoment"></span>
+      </div>
+
+      <div class="card" id="homeWishCard">
+        <div class="head">
+          <h3>今日愿望回看</h3>
+          <span class="muted" id="wishReviewCount"></span>
+        </div>
+        <div id="homeWishList"></div>
+      </div>
+
+      <div class="card">
+        <div class="head"><h3>我的进度</h3></div>
+        <div class="stats" id="homeStats"></div>
+      </div>
+    </section>
+
+    <!-- ===== 形象 ===== -->
+    <section id="view-identity" class="view">
+      <div class="card">
+        <h3>我的形象卡</h3>
+        <p class="muted">写下未来自己的样子，AI 生图时会被拼进提示词</p>
+        <div id="profileForm"></div>
+        <button id="saveProfile" class="btn">保存形象卡</button>
+      </div>
+
+      <div class="card">
+        <h3>真实照片（生图参考）</h3>
+        <p class="muted">上传 1-3 张正面 / 侧面 / 全身照，让生成的形象更像你</p>
+        <div id="photoGrid" class="img-grid"></div>
+        <input type="file" id="photoInput" accept="image/*" multiple hidden>
+        <button class="btn-ghost" data-pick="photoInput">＋ 上传真实照片</button>
+      </div>
+
+      <div class="card">
+        <h3>榜样人物融合（可选）</h3>
+        <p class="muted">上传榜样参考图，与你的形象按比例融合，增强真实感</p>
+        <div id="modelRow" class="img-grid" style="grid-template-columns:1fr 1fr"></div>
+        <input type="file" id="modelInput" accept="image/*" hidden>
+        <button class="btn-ghost" data-pick="modelInput">＋ 上传榜样参考图</button>
+        <label>融合比例（越靠右越像你）</label>
+        <input type="range" id="modelRatio" min="0" max="100" value="60">
+        <span class="muted" id="modelRatioVal"></span>
+      </div>
+
+      <div class="card">
+        <h3>🎨 生成工坊（AI 生图）</h3>
+        <p class="muted">联网生成「未来的你」——用真实照片做参考，AI 保持你的轮廓，按形象卡描写生成。生成结果保存在本机。</p>
+        <select id="genModel"></select>
+        <label>补充描述（可选）</label>
+        <textarea id="genScene" rows="2" placeholder="如：站在阳光下的花园里，阳光明媚，春风拂面，微微笑着（若觉得太老，可加：年轻、皮肤光滑、无皱纹）"></textarea>
+        <button id="genRun" class="btn">✨ 生成 4 张</button>
+        <p class="muted mt" id="genHint"></p>
+        <div id="genCandidates" class="img-grid"></div>
+      </div>
+
+      <div class="card">
+        <h3>未来形象图（生成结果）</h3>
+        <p class="muted">把下方提示词复制到 即梦 / Midjourney / 其他生图工具，生成后把结果图导入这里，设为每日主形象</p>
+        <textarea id="promptOut" rows="6" readonly></textarea>
+        <button id="copyPrompt" class="btn-ghost">复制提示词</button>
+        <div id="identityGrid" class="img-grid"></div>
+        <input type="file" id="identityInput" accept="image/*" multiple hidden>
+        <button class="btn" data-pick="identityInput">＋ 导入生成的形象图</button>
+      </div>
+    </section>
+
+    <!-- ===== 愿景 ===== -->
+    <section id="view-vision" class="view">
+      <div class="card">
+        <h3>愿景场景</h3>
+        <p class="muted">把理想生活画成一张张场景，每天看，每天靠近</p>
+        <div id="sceneChips" class="chips"></div>
+      </div>
+      <div id="sceneGroups"></div>
+      <div class="card">
+        <h3>添加愿景场景</h3>
+        <select id="sceneCat"></select>
+        <label>一句话愿景（可选）</label>
+        <textarea id="sceneCaption" rows="2" placeholder="清晨六点，我在窗边的书桌前，窗外有桂花香……"></textarea>
+        <div class="row">
+          <button class="btn-ghost" id="btnGenScene">✨ AI 生成场景图</button>
+          <button class="btn" data-pick="sceneInput">＋ 导入图片</button>
+        </div>
+        <input type="file" id="sceneInput" accept="image/*" hidden>
+        <div id="sceneCandidates" class="img-grid"></div>
+      </div>
+    </section>
+
+    <!-- ===== 正念 ===== -->
+    <section id="view-mind" class="view">
+      <div class="card">
+        <h3>正念仪式</h3>
+        <p class="muted">把正念变成一天中自然发生的微仪式：喝水、吃饭、行动前、睡前……</p>
+      </div>
+      <div id="mindGroups"></div>
+      <div class="card">
+        <h3>添加自定义正念</h3>
+        <select id="mindMoment"></select>
+        <label>正念内容</label>
+        <textarea id="mindText" rows="2" placeholder="写一句属于你的正念……"></textarea>
+        <button id="addMind" class="btn">添加</button>
+      </div>
+    </section>
+
+    <!-- ===== 愿望 ===== -->
+    <section id="view-wish" class="view">
+      <div id="wishLockMsg" class="card hidden"></div>
+      <div id="wishBody">
+        <div class="card">
+          <h3>愿望清单</h3>
+          <p class="muted">写下来，每天回看，让愿望每天靠近一点</p>
+          <div class="row">
+            <input type="text" id="wishText" placeholder="写下你的愿望……">
+            <select id="wishType" style="width:auto;flex:0 0 auto"></select>
+            <button id="addWish" class="btn">添加</button>
+          </div>
+        </div>
+        <div id="wishFilter" class="chips"></div>
+        <div id="wishList"></div>
+      </div>
+    </section>
+
+    <!-- ===== 记录 ===== -->
+    <section id="view-record" class="view">
+      <div id="recordLockMsg" class="card hidden"></div>
+      <div id="recordBody">
+        <div class="card">
+          <h3>今日体验</h3>
+          <p class="muted">今天最值得记住的体验是什么？</p>
+          <textarea id="expText" rows="2" placeholder="例如：给妈妈打了电话，她的笑声让我安心……"></textarea>
+          <label>三件感恩的事</label>
+          <input type="text" id="grat1" placeholder="感恩一">
+          <input type="text" id="grat2" placeholder="感恩二">
+          <input type="text" id="grat3" placeholder="感恩三">
+          <label>心情指数</label>
+          <div class="stars" id="moodStars"></div>
+          <input type="file" id="journalImg" accept="image/*" hidden>
+          <button class="btn-ghost" data-pick="journalImg">＋ 配一张图（可选）</button>
+          <div id="journalImgPrev" class="img-grid" style="grid-template-columns:1fr"></div>
+          <button id="saveJournal" class="btn">保存今日</button>
+        </div>
+
+        <div class="card">
+          <h3>奖励打卡</h3>
+          <p class="muted">小目标完成 → 领奖励 → 记录「鲜花之后的感受」</p>
+          <div class="row">
+            <input type="text" id="rewardGoal" placeholder="今天完成的小目标……">
+            <button id="addReward" class="btn">打卡</button>
+          </div>
+          <div id="rewardForm" class="hidden"></div>
+          <div id="rewardList"></div>
+        </div>
+
+        <div class="card">
+          <h3>我的成就</h3>
+          <div class="achv" id="achievements"></div>
+        </div>
+
+        <div class="card">
+          <h3>最近记录</h3>
+          <div id="recentJournal"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 设置 ===== -->
+    <section id="view-settings" class="view">
+      <div class="card">
+        <h3>AI 生图配置（v0.2）</h3>
+        <p class="muted">「生成工坊」需要联网调用生图服务。API Key 只保存在本机，仅在生成时发送给服务商。</p>
+        <label>硅基流动 API Key</label>
+        <div class="row">
+          <input type="password" id="genKey" placeholder="sk-…" autocomplete="off">
+          <button class="btn" data-save-gen-key>保存</button>
+        </div>
+        <button class="btn-ghost" data-test-gen-key>测试连接</button>
+        <button class="btn-mini" id="genKeyToggle">👁 显示 Key</button>
+        <div id="genDiag" class="mt"></div>
+        <p class="muted mt">还没有 Key？三步拿到：<br>
+        1. 打开 <b>cloud.siliconflow.cn</b>，用手机号注册（国内直接访问；若在国外注册，则用 cloud.siliconflow.com，两个站账号不通用，app 会自动切换识别）<br>
+        2. 左侧「API 密钥」→ 创建密钥 → 复制（sk- 开头，注意复制完整）<br>
+        3. 粘贴到上方 → 保存 → 点「测试连接」。<br>
+        新用户送免费额度；注意：FLUX.1-schnell 在<b>国内站(.cn)免费</b>、国际站(.com)按量计费；Qwen 系列仅国内站可用。</p>
+      </div>
+      <div class="card">
+        <h3>口令加密</h3>
+        <p class="muted">愿望与日记使用 AES-256 加密，密钥只在你脑子里，永不出设备</p>
+        <div id="passArea"></div>
+      </div>
+      <div class="card">
+        <h3>备份与恢复</h3>
+        <p class="muted">数据只在你自己的设备里，请定期备份（换机 / 清理前务必导出）</p>
+        <button id="btnExportPack" class="btn">导出备份包（.lvpack）</button>
+        <button id="btnExportSnap" class="btn-ghost">导出 HTML 快照（任何浏览器离线可读）</button>
+        <input type="file" id="restoreInput" accept=".lvpack,application/zip" hidden>
+        <button class="btn-ghost" data-pick="restoreInput">从备份恢复（覆盖当前数据）</button>
+      </div>
+      <div class="card">
+        <h3>存储用量</h3>
+        <div id="storageInfo"></div>
+      </div>
+      <div class="card">
+        <h3>关于</h3>
+        <p class="muted">人生目标具象画 v0.1 · 本地离线运行 · 无账号无云端 · 数据不出本机<br>
+        使用问题与部署说明见 README.md</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- 底部导航 -->
+<nav id="tabbar">
+  <button data-nav="home" class="on"><span class="ic">🏠</span>今日</button>
+  <button data-nav="identity"><span class="ic">🪞</span>形象</button>
+  <button data-nav="vision"><span class="ic">🖼</span>愿景</button>
+  <button data-nav="mind"><span class="ic">🌿</span>正念</button>
+  <button data-nav="wish"><span class="ic">⭐</span>愿望</button>
+  <button data-nav="record"><span class="ic">📖</span>记录</button>
+</nav>
+
+<!-- 锁屏 -->
+<div id="lockOverlay" class="overlay hidden">
+  <div class="card lock-card">
+    <h3>🔒 私密内容</h3>
+    <p class="muted">输入口令解锁「愿望」与「记录」</p>
+    <input type="password" id="lockInput" placeholder="口令" autocomplete="off">
+    <button id="lockSubmit" class="btn">解锁</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/util.js"></script>
+<script src="js/crypto.js"></script>
+<script src="js/db.js"></script>
+<script src="js/data.js"></script>
+<script src="js/backup.js"></script>
+<script src="js/gen.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
